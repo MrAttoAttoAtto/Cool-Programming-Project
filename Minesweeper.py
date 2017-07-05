@@ -2,21 +2,25 @@
 
 from tkinter import *
 import math
+import random
 
 #Tkinter Class
 
 class MinesweeperMain: #Initialising class
     def __init__(self, xLength, yLength):
         self.gameStarted = False
+
+        self.xLength = xLength #sets these variables to the object
+        self.yLength = yLength
         
-        self.numOfBombs = math.floor(0.17*xLength*yLength) #setting the number of bombs
+        self.numOfBombs = math.floor(0.17*self.xLength*self.yLength) #setting the number of bombs
 
         self.mapData = [] #creating the variable which holds the map data
 
-        for q in range(yLength): #fills the data with empty strings
+        for q in range(self.yLength): #fills the data with empty strings
             self.mapData.append([])
             
-            for r in range(xLength):
+            for r in range(self.xLength):
                 self.mapData[q].append('')
 
         self.bombLocationsReserved = [] #creates a list that will hold the locations where no more bombs can be placed
@@ -27,11 +31,11 @@ class MinesweeperMain: #Initialising class
         self.frame = Frame(self.root)
         self.frame.pack()
 
-        if xLength % 2 == 0:
-            self.timeXPos = int(xLength/2-1) #sets the positions so they are in the middle
+        if self.xLength % 2 == 0:
+            self.timeXPos = int(self.xLength/2-1) #sets the positions so they are in the middle
             self.bombCountXPos = self.timeXPos + 1
         else:
-            self.timeXPos = int(xLength/2-1.5)
+            self.timeXPos = int(self.xLength/2-1.5)
             self.bombCountXPos = self.timeXPos + 2
 
         self.timeLabel = Label(self.frame, text='Time') #puts the time and bomb count onto the tkinter window
@@ -56,20 +60,20 @@ class MinesweeperMain: #Initialising class
         self.xPos = 0 #sets the working positions of the button creation
         self.yPos = 0
 
-        for l in range(yLength): #fills the stringvar list with stringvars
+        for l in range(self.yLength): #fills the stringvar list with stringvars
             self.buttonStringVarList.append([])
             
-            for p in range(xLength):
+            for p in range(self.xLength):
                 self.buttonStringVarList[l].append(StringVar())
 
-        for n in range(yLength): #fills the button list with spaces that can be overwritten with buttons
+        for n in range(self.yLength): #fills the button list with spaces that can be overwritten with buttons
             self.buttonList.append([])
             
-            for m in range(xLength):
+            for m in range(self.xLength):
                 self.buttonList[n].append('')
 
-        for pos in range(0,xLength*yLength):  #creates all of the buttons required        
-            if self.xPos == xLength:
+        for pos in range(0,self.xLength*self.yLength):  #creates all of the buttons required        
+            if self.xPos == self.xLength:
                 self.yPos += 1
                 self.xPos = 0
             
@@ -81,8 +85,85 @@ class MinesweeperMain: #Initialising class
 
             self.xPos += 1
 
+    def generateBoard(self,xPos,yPos): #generating the board
+        self.bombLocationsReserved.append(str(xPos+xPos*yPos))
+        bombsLeftToPlace = self.numOfBombs
+            
+        while bombsLeftToPlace > 0:
+            yPlace = 0
+            bombPlacement = random.randint(0,self.xLength*self.yLength-1)
+
+            placementValue = bombPlacement
+                
+            while bombPlacement >= self.xLength:
+                bombPlacement = bombPlacement - self.xLength
+                yPlace += 1
+                    
+            xPlace = bombPlacement
+
+            if not placementValue in self.bombLocationsReserved:
+                self.mapData[yPlace][xPlace] = 'b'
+                bombsLeftToPlace = bombsLeftToPlace - 1
+                self.bombLocationsReserved.append(placementValue)    
+        
+        for squareXPos in range(0,self.xLength):
+            for squareYPos in range(0,self.yLength):
+                    bombsSurrounding = 0
+
+                    if self.mapData[squareYPos][squareXPos] == 'b':
+                        self.buttonStringVarList[squareYPos][squareXPos].set('B')
+                        continue
+
+                    if squareXPos > 0:
+                        if squareYPos > 0:
+                            if self.mapData[squareYPos-1][squareXPos-1] == 'b':
+                                bombsSurrounding += 1
+                            
+                        if self.mapData[squareYPos][squareXPos-1] == 'b':
+                            bombsSurrounding += 1
+                    
+                        try:
+                            if self.mapData[squareYPos+1][squareXPos-1] == 'b':
+                                bombsSurrounding += 1
+                        except IndexError:
+                            pass
+
+                    if squareYPos > 0:
+                        if self.mapData[squareYPos-1][squareXPos] == 'b':
+                            bombsSurrounding += 1
+                    
+                    try:
+                        if self.mapData[squareYPos+1][squareXPos] == 'b':
+                            bombsSurrounding += 1
+                    except IndexError:
+                        pass
+                    
+                    if squareYPos > 0:
+                        try:
+                            if self.mapData[squareYPos-1][squareXPos+1] == 'b':
+                                bombsSurrounding += 1
+                        except IndexError:
+                            pass
+                    
+                    try:
+                        if self.mapData[squareYPos][squareXPos+1] == 'b':
+                            bombsSurrounding += 1
+                    except IndexError:
+                        pass
+                    
+                    try:
+                        if self.mapData[squareYPos+1][squareXPos+1] == 'b':
+                            bombsSurrounding += 1
+                    except IndexError:
+                        pass
+                    
+                    self.buttonStringVarList[squareYPos][squareXPos].set(bombsSurrounding)
+                    self.mapData[squareYPos][squareXPos] = bombsSurrounding
+
     def revealSquare(self,xPos,yPos): #if a square is left-clicked...
         if not self.gameStarted:
+            self.generateBoard(xPos,yPos)
+            self.gameStarted = True
         
 
-test = MinesweeperMain(9,9)
+test = MinesweeperMain(20,20)
