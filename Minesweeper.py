@@ -86,7 +86,7 @@ class MinesweeperMain: #Initialising class
             self.xPos += 1
 
     def generateBoard(self,xPos,yPos): #generating the board
-        self.bombLocationsReserved.append(str(xPos+xPos*yPos))
+        self.bombLocationsReserved.append(str(xPos+xPos*yPos)) #do the same for the 8 around!
         bombsLeftToPlace = self.numOfBombs
             
         while bombsLeftToPlace > 0:
@@ -101,7 +101,7 @@ class MinesweeperMain: #Initialising class
                     
             xPlace = bombPlacement
 
-            if not placementValue in self.bombLocationsReserved:
+            if not placementValue in self.bombLocationsReserved: 
                 self.mapData[yPlace][xPlace] = 'b'
                 bombsLeftToPlace = bombsLeftToPlace - 1
                 self.bombLocationsReserved.append(placementValue)    
