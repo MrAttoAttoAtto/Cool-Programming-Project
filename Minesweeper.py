@@ -1,19 +1,34 @@
 #Minesweeper!
 
 from tkinter import *
-import math
-import random, time
+import random, time, math, vlc
 
 #Tkinter Class
 
 class MinesweeperMain: #Initialising class
-    def __init__(self, xLength, yLength, percentOfBombs):
+    def __init__(self, xLength, yLength, percentOfBombs, caller=None):
+        try:
+            caller.root.destroy()
+        except Exception:
+            pass
+        
         self.gameStarted = False
+        self.failure = False
+        self.vlc64bitInstalled = True
+
+        try:
+            import vlc
+        except Exception:
+            self.vlc64bitInstalled = False
 
         self.xLength = xLength #sets these variables to the object
         self.yLength = yLength
 
         self.numOfBombs = math.floor(percentOfBombs/100*self.xLength*self.yLength) #setting the number of bombs
+        self.bombsLeftToReveal = self.numOfBombs
+        
+        if self.vlc64bitInstalled:
+            self.explosionSound = vlc.MediaPlayer('explosion-sound.mp3')
 
         self.mapData = [] #creating the variable which holds the map data
 
@@ -30,8 +45,16 @@ class MinesweeperMain: #Initialising class
         self.root = Tk()
         self.root.title('Minesweeper') #sets up the tkinter window
 
+        self.bombImage = PhotoImage(file='mine2-11.png')
+        self.explosionImage = PhotoImage(file='explosion.png')
+
         self.frame = Frame(self.root)
         self.frame.pack()
+
+        self.bombLabelList = []
+
+        for i in range(self.numOfBombs):
+            self.bombLabelList.append(Label(self.frame, image=self.bombImage))
 
         if self.xLength % 2 == 0:
             self.timeXPos = int(self.xLength/2-1) #sets the positions so they are in the middle
@@ -183,7 +206,7 @@ class MinesweeperMain: #Initialising class
                 #self.buttonStringVarList[squareYPos][squareXPos].set(bombsSurrounding)
                 self.mapData[squareYPos][squareXPos] = bombsSurrounding
 
-    def revealSquare(self, xPos, yPos, failure=False): #if a square is left-clicked...
+    def revealSquare(self, xPos, yPos): #if a square is left-clicked...
         if not self.gameStarted:
             self.generateBoard(xPos, yPos)
             self.gameStarted = True
@@ -195,15 +218,16 @@ class MinesweeperMain: #Initialising class
 
         self.buttonList[yPos][xPos].destroy()
 
-        self.labelList[yPos][xPos] = Label(self.frame, width=3, height=1, font=(None, 15), text=self.mapData[yPos][xPos])
-        self.labelList[yPos][xPos].grid(column=xPos, row=yPos+2)
-        self.labelList[yPos][xPos].bind('<Button-2>', lambda e, xPos=xPos, yPos=yPos: self.chordSquare(xPos, yPos))
+        if self.mapData[yPos][xPos] != 'B':
+            self.labelList[yPos][xPos] = Label(self.frame, width=3, height=1, font=(None, 15), text=self.mapData[yPos][xPos])
+            self.labelList[yPos][xPos].grid(column=xPos, row=yPos+2)
+            self.labelList[yPos][xPos].bind('<Button-2>', lambda e, xPos=xPos, yPos=yPos: self.chordSquare(xPos, yPos))
 
-        if not failure:
+        if not self.failure:
             self.root.update()
         time.sleep(0.02)
 
-        if self.mapData[yPos][xPos] == 0:
+        if self.mapData[yPos][xPos] == 0 and not self.failure:
             if xPos > 0:
                 if yPos > 0:
                     try:
@@ -248,20 +272,57 @@ class MinesweeperMain: #Initialising class
             except Exception:
                 pass
 
-        if self.mapData[yPos][xPos] == 'B' and not failure:
+        if self.mapData[yPos][xPos] == 'B':
+            self.bombLabelList[self.bombsLeftToReveal-1].grid(row=yPos+2,column=xPos)
+            self.bombsLeftToReveal = self.bombsLeftToReveal-1
+
+        if self.mapData[yPos][xPos] == 'B' and not self.failure:
+            self.failure = True
+            
+            self.explosionLabel = Label(self.frame, image=self.explosionImage)
+            self.explosionLabel.grid(row=yPos+2, column=xPos)
+
+            if self.vlc64bitInstalled:
+                self.explosionSound.play()
+
+            self.root.update()
             for xFail in range(self.xLength*self.yLength):
                 yFail = 0
                 while xFail >= self.xLength:
                     xFail = xFail - self.xLength
                     yFail += 1
                 print(str(xFail)+':'+str(yFail))
-                self.revealSquare(xFail,yFail,True)
+                self.revealSquare(xFail, yFail)
+
             for yFail in range(self.yLength):
                 if self.buttonList[yFail][0].winfo_exists() == 1:
                     self.revealedSquareIds.remove(yFail*self.xLength)
                 print(str(xFail)+':'+str(yFail))
-                self.revealSquare(0, yFail, True)
-                time.sleep(0.2)
+                self.revealSquare(0, yFail)
+                time.sleep(0.1)
 
+            self.root.update()
+            
+            gameOver = GameOverBox(self)
+
+class GameOverBox:
+    def __init__(self, master):
+        
+        self.root = Tk()
+        self.root.title('Game Over')
+
+        self.frame = Frame(self.root)
+        self.frame.pack()
+
+        self.label = Label(self.frame, text='You lost!', fg='red')
+        self.label.grid(row=0, column=0)
+        
+        self.playAgainButton = Button(self.frame, text='Play Again', command=lambda:self.restart(master))
+        self.playAgainButton.grid(row=1, column=0)
+
+    def restart(self, master):
+        master.root.destroy()
+        master = None
+        master = MinesweeperMain(16, 16, 17, self)
 
 test = MinesweeperMain(16, 16, 17)
