@@ -12,7 +12,7 @@ class MinesweeperMain: #Initialising class
 
         self.xLength = xLength #sets these variables to the object
         self.yLength = yLength
-        
+
         self.numOfBombs = math.floor(percentOfBombs/100*self.xLength*self.yLength) #setting the number of bombs
 
         self.mapData = [] #creating the variable which holds the map data
@@ -48,7 +48,7 @@ class MinesweeperMain: #Initialising class
 
         self.timeStrVar = StringVar()
         self.timeStrVar.set('00:00')
-        self.timeClock = Label(self.frame, textvariabl =self.timeStrVar)
+        self.timeClock = Label(self.frame, textvariable =self.timeStrVar)
         self.timeClock.grid(row=1,column=self.timeXPos)
 
         self.bombStrVar = StringVar()
@@ -81,23 +81,25 @@ class MinesweeperMain: #Initialising class
             for d in range(self.xLength):
                 self.labelList[c].append('')
 
-        for pos in range(0,self.xLength*self.yLength):  #creates all of the buttons required        
+        for pos in range(0, self.xLength*self.yLength):  #creates all of the buttons required        
             if self.xPos == self.xLength:
                 self.yPos += 1
                 self.xPos = 0
 
             xPosLoc = self.xPos
             yPosLoc = self.yPos
-            
+
             self.buttonList[self.yPos][self.xPos] = Button(self.frame, height=2, width=7, textvariable=self.buttonStringVarList[self.yPos][self.xPos])
-            self.buttonList[self.yPos][self.xPos].grid(row=self.yPos+2,column=self.xPos)
-            self.buttonList[self.yPos][self.xPos].bind('<Button-1>', lambda e,xPosLoc=xPosLoc,yPosLoc=yPosLoc: self.revealSquare(xPosLoc,yPosLoc))
-            self.buttonList[self.yPos][self.xPos].bind('<Button-3>', lambda e,xPosLoc=xPosLoc,yPosLoc=yPosLoc: self.markSquare(xPosLoc,yPosLoc))
-            self.buttonList[self.yPos][self.xPos].bind('<Button-2>', lambda e,xPosLoc=xPosLoc,yPosLoc=yPosLoc: self.chordSquare(xPosLoc,yPosLoc))
+            self.buttonList[self.yPos][self.xPos].grid(row=self.yPos+2, column=self.xPos)
+            self.buttonList[self.yPos][self.xPos].bind('<Button-1>', lambda e, xPosLoc=xPosLoc, yPosLoc=yPosLoc: self.revealSquare(xPosLoc, yPosLoc))
+            self.buttonList[self.yPos][self.xPos].bind('<Button-3>', lambda e, xPosLoc=xPosLoc, yPosLoc=yPosLoc: self.markSquare(xPosLoc, yPosLoc))
+            self.buttonList[self.yPos][self.xPos].bind('<Button-2>', lambda e, xPosLoc=xPosLoc, yPosLoc=yPosLoc: self.chordSquare(xPosLoc, yPosLoc))
 
             self.xPos += 1
 
-    def generateBoard(self,xPos,yPos): #generating the board
+        self.root.mainloop()
+
+    def generateBoard(self, xPos, yPos): #generating the board
         self.bombLocationsReserved.append(xPos+yPos*self.xLength)
         self.bombLocationsReserved.append(xPos+yPos*self.xLength-1)
         self.bombLocationsReserved.append(xPos+yPos*self.xLength+1)
@@ -107,83 +109,83 @@ class MinesweeperMain: #Initialising class
         self.bombLocationsReserved.append(xPos+yPos*self.xLength-self.xLength+1)
         self.bombLocationsReserved.append(xPos+yPos*self.xLength+self.xLength-1)
         self.bombLocationsReserved.append(xPos+yPos*self.xLength+self.xLength+1)
-        
+
         bombsLeftToPlace = self.numOfBombs
-            
+
         while bombsLeftToPlace > 0:
             yPlace = 0
-            bombPlacement = random.randint(0,self.xLength*self.yLength-1)
+            bombPlacement = random.randint(0, self.xLength*self.yLength-1)
 
             placementValue = bombPlacement
-                
+
             while bombPlacement >= self.xLength:
                 bombPlacement = bombPlacement - self.xLength
                 yPlace += 1
-                    
+
             xPlace = bombPlacement
 
-            if not placementValue in self.bombLocationsReserved: 
+            if not placementValue in self.bombLocationsReserved:
                 self.mapData[yPlace][xPlace] = 'B'
                 bombsLeftToPlace = bombsLeftToPlace - 1
-                self.bombLocationsReserved.append(placementValue)    
-        
-        for squareXPos in range(0,self.xLength):
-            for squareYPos in range(0,self.yLength):
-                    bombsSurrounding = 0
+                self.bombLocationsReserved.append(placementValue)
 
-                    if self.mapData[squareYPos][squareXPos] == 'B':
-                        self.buttonStringVarList[squareYPos][squareXPos].set('B')
-                        continue
+        for squareXPos in range(0, self.xLength):
+            for squareYPos in range(0, self.yLength):
+                bombsSurrounding = 0
 
-                    if squareXPos > 0:
-                        if squareYPos > 0:
-                            if self.mapData[squareYPos-1][squareXPos-1] == 'B':
-                                bombsSurrounding += 1
-                            
-                        if self.mapData[squareYPos][squareXPos-1] == 'B':
-                            bombsSurrounding += 1
-                    
-                        try:
-                            if self.mapData[squareYPos+1][squareXPos-1] == 'B':
-                                bombsSurrounding += 1
-                        except IndexError:
-                            pass
+                if self.mapData[squareYPos][squareXPos] == 'B':
+                    self.buttonStringVarList[squareYPos][squareXPos].set('B')
+                    continue
 
+                if squareXPos > 0:
                     if squareYPos > 0:
-                        if self.mapData[squareYPos-1][squareXPos] == 'B':
+                        if self.mapData[squareYPos-1][squareXPos-1] == 'B':
                             bombsSurrounding += 1
-                    
-                    try:
-                        if self.mapData[squareYPos+1][squareXPos] == 'B':
-                            bombsSurrounding += 1
-                    except IndexError:
-                        pass
-                    
-                    if squareYPos > 0:
-                        try:
-                            if self.mapData[squareYPos-1][squareXPos+1] == 'B':
-                                bombsSurrounding += 1
-                        except IndexError:
-                            pass
-                    
-                    try:
-                        if self.mapData[squareYPos][squareXPos+1] == 'B':
-                            bombsSurrounding += 1
-                    except IndexError:
-                        pass
-                    
-                    try:
-                        if self.mapData[squareYPos+1][squareXPos+1] == 'B':
-                            bombsSurrounding += 1
-                    except IndexError:
-                        pass
-                    
-                    #self.buttonStringVarList[squareYPos][squareXPos].set(bombsSurrounding)
-                    self.mapData[squareYPos][squareXPos] = bombsSurrounding
 
-    def revealSquare(self,xPos,yPos,failure=False): #if a square is left-clicked...
+                    if self.mapData[squareYPos][squareXPos-1] == 'B':
+                        bombsSurrounding += 1
+
+                    try:
+                        if self.mapData[squareYPos+1][squareXPos-1] == 'B':
+                            bombsSurrounding += 1
+                    except IndexError:
+                        pass
+
+                if squareYPos > 0:
+                    if self.mapData[squareYPos-1][squareXPos] == 'B':
+                        bombsSurrounding += 1
+
+                try:
+                    if self.mapData[squareYPos+1][squareXPos] == 'B':
+                        bombsSurrounding += 1
+                except IndexError:
+                    pass
+
+                if squareYPos > 0:
+                    try:
+                        if self.mapData[squareYPos-1][squareXPos+1] == 'B':
+                            bombsSurrounding += 1
+                    except IndexError:
+                        pass
+
+                try:
+                    if self.mapData[squareYPos][squareXPos+1] == 'B':
+                        bombsSurrounding += 1
+                except IndexError:
+                    pass
+
+                try:
+                    if self.mapData[squareYPos+1][squareXPos+1] == 'B':
+                        bombsSurrounding += 1
+                except IndexError:
+                    pass
+
+                #self.buttonStringVarList[squareYPos][squareXPos].set(bombsSurrounding)
+                self.mapData[squareYPos][squareXPos] = bombsSurrounding
+
+    def revealSquare(self, xPos, yPos, failure=False): #if a square is left-clicked...
         if not self.gameStarted:
-            self.generateBoard(xPos,yPos)
+            self.generateBoard(xPos, yPos)
             self.gameStarted = True
 
         if xPos+yPos*self.xLength in self.revealedSquareIds:
@@ -193,9 +195,9 @@ class MinesweeperMain: #Initialising class
 
         self.buttonList[yPos][xPos].destroy()
 
-        self.labelList[yPos][xPos] = Label(self.frame, width=3, height=1, font=(None,15), text=self.mapData[yPos][xPos])
-        self.labelList[yPos][xPos].grid(column=xPos,row=yPos+2)
-        self.labelList[yPos][xPos].bind('<Button-2>', lambda e,xPos=xPos,yPos=yPos: self.chordSquare(xPos,yPos))
+        self.labelList[yPos][xPos] = Label(self.frame, width=3, height=1, font=(None, 15), text=self.mapData[yPos][xPos])
+        self.labelList[yPos][xPos].grid(column=xPos, row=yPos+2)
+        self.labelList[yPos][xPos].bind('<Button-2>', lambda e, xPos=xPos, yPos=yPos: self.chordSquare(xPos, yPos))
 
         if not failure:
             self.root.update()
@@ -205,7 +207,7 @@ class MinesweeperMain: #Initialising class
             if xPos > 0:
                 if yPos > 0:
                     try:
-                        self.revealSquare(xPos-1,yPos-1)
+                        self.revealSquare(xPos-1, yPos-1)
                     except Exception:
                         pass
 
@@ -258,8 +260,8 @@ class MinesweeperMain: #Initialising class
                 if self.buttonList[yFail][0].winfo_exists() == 1:
                     self.revealedSquareIds.remove(yFail*self.xLength)
                 print(str(xFail)+':'+str(yFail))
-                self.revealSquare(0,yFail,True)
+                self.revealSquare(0, yFail, True)
                 time.sleep(0.2)
-            
 
-test = MinesweeperMain(16,16,17)
+
+test = MinesweeperMain(16, 16, 17)
