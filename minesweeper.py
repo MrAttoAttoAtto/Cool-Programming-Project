@@ -558,7 +558,7 @@ class StartBox:
         self.frame = Frame(self.root) #creates the frame
         self.frame.pack()
 
-        self.xLabel = Label(self.frame, text='Enter the horizontal length of the minesweeper board')
+        self.xLabel = Label(self.frame, text='Enter the width of the minesweeper board')
         self.xLabel.grid(row=0, column=0) #creates the xLabel
 
         self.xLengthStrVar = StringVar()
