@@ -500,4 +500,4 @@ def reopenMain(caller): #restarts it outside of the class
     global minesweeper
     minesweeper = MinesweeperMain(16, 16, 17, caller)
 
-minesweeper = MinesweeperMain(6, 6, 17) #the test!
+minesweeper = MinesweeperMain(16, 16, 75) #the test!
