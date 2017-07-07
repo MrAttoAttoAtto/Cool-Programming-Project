@@ -137,7 +137,10 @@ class MinesweeperMain: #Initialising class
         self.root.mainloop() #mainloop!
 
     def timerCode(self):
-        if self.gameOver: #if the game is over, exit this loop of the timer
+        try:
+            if self.gameOver or self.root.winfo_exists() == 0: #if the game is over or the window has been closed, exit this loop of the timer
+                return
+        except RuntimeError:
             return
         
         self.timerThread = threading.Timer(1.0, self.timerCode) #when started, in one second, run this program again
@@ -657,3 +660,4 @@ def openMain(caller, xLength=None, yLength=None, percentOfBombs=None, winChoice=
 
 if __name__ == '__main__':
     start = StartBox()
+    minesweeper = None
