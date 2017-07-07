@@ -1,5 +1,7 @@
 #Minesweeper!
 
+'''Do Chording fix'''
+
 from tkinter import *
 import random, time, math, vlc
 
@@ -12,7 +14,7 @@ class MinesweeperMain: #Initialising class
         except Exception:
             pass
         
-        self.gameStarted = False
+        self.gameStarted = False #makes the necessary variables
         self.failure = False
         self.vlc64bitInstalled = True
         self.squaresRevealed = 0
@@ -36,22 +38,17 @@ class MinesweeperMain: #Initialising class
 
         self.revealedSquareIds = [] #list so that, when the loss occurs and all tiles are revealed, already revealed squares are not affected
 
-        for q in range(self.yLength): #fills the data with empty strings
-            self.mapData.append([])
-            
-            for r in range(self.xLength):
-                self.mapData[q].append('')
-
         self.bombLocationsReserved = [] #creates a list that will hold the locations where no more bombs can be placed
 
         self.root = Tk()
         self.root.title('Minesweeper') #sets up the tkinter window
 
-        listOfNumberImages = []
+        self.listOfNumberImages = []
 
         for x in range(9):
-            listOfNumberImages.append(PhotoImage(file='numbers\\'+str(x)+'.PNG'))
+            self.listOfNumberImages.append(PhotoImage(file='numbers\\'+str(x)+'.PNG'))
 
+        self.transImage = PhotoImage(file='transparent.png')
         self.flagImage = PhotoImage(file='flag.png')
         self.bombImage = PhotoImage(file='mine2-11.png')
         self.explosionImage = PhotoImage(file='explosion.png') #sets up the images
@@ -59,14 +56,14 @@ class MinesweeperMain: #Initialising class
         self.frame = Frame(self.root) #makes the frame widget
         self.frame.pack()
 
-        self.labelFrameList = []
+        #self.labelFrameList = []
 
-        for g in range(self.yLength): #fills the label frame list with spaces that can be overwritten with frames
-            self.labelFrameList.append([])
+        #for g in range(self.yLength): #fills the label frame list with spaces that can be overwritten with frames
+            #self.labelFrameList.append([])
             
-            for h in range(self.xLength):
-                self.labelFrameList[g].append(Frame(self.frame, height=55, width=66))
-                self.labelFrameList[g][h].pack_propagate(0)
+            #for h in range(self.xLength):
+                #self.labelFrameList[g].append(Frame(self.frame, height=55, width=66))
+                #self.labelFrameList[g][h].pack_propagate(0)
 
         self.bombLabelList = [] #list for storing the bomb pictures
 
@@ -99,27 +96,26 @@ class MinesweeperMain: #Initialising class
         self.buttonList = [] #lists to hold data for buttons/labels
         self.buttonStringVarList = []
         self.labelList=[]
+        self.isFlaggedList = []
 
-        self.xPos = 0 #sets the working positions of the button creation
-        self.yPos = 0
+        self.mapData = [] #creating the variable which holds the map data
 
-        for l in range(self.yLength): #fills the stringvar list with stringvars
+        for l in range(self.yLength): #fills the lists with their required starting data
             self.buttonStringVarList.append([])
+            self.buttonList.append([])
+            self.labelList.append([])
+            self.isFlaggedList.append([])
+            self.mapData.append([])
             
             for p in range(self.xLength):
                 self.buttonStringVarList[l].append(StringVar())
+                self.buttonList[l].append('')
+                self.labelList[l].append('')
+                self.isFlaggedList[l].append(False)
+                self.mapData[l].append('')
 
-        for n in range(self.yLength): #fills the button list with spaces that can be overwritten with buttons
-            self.buttonList.append([])
-            
-            for m in range(self.xLength):
-                self.buttonList[n].append('')
-
-        for c in range(self.yLength): #fills the button list with spaces that can be overwritten with buttons
-            self.labelList.append([])
-            
-            for d in range(self.xLength):
-                self.labelList[c].append('')
+        self.xPos = 0 #sets the working positions of the button creation
+        self.yPos = 0
 
         for pos in range(0, self.xLength*self.yLength):  #creates all of the buttons required        
             if self.xPos == self.xLength:
@@ -129,7 +125,7 @@ class MinesweeperMain: #Initialising class
             xPosLoc = self.xPos
             yPosLoc = self.yPos
 
-            self.buttonList[self.yPos][self.xPos] = Button(self.frame, height=2, width=7, textvariable=self.buttonStringVarList[self.yPos][self.xPos])
+            self.buttonList[self.yPos][self.xPos] = Button(self.frame, height=49, width=60, textvariable=self.buttonStringVarList[self.yPos][self.xPos], image=self.transImage)
             self.buttonList[self.yPos][self.xPos].grid(row=self.yPos+2, column=self.xPos)
             self.buttonList[self.yPos][self.xPos].bind('<Button-1>', lambda e, xPosLoc=xPosLoc, yPosLoc=yPosLoc: self.revealSquare(xPosLoc, yPosLoc)) #reveals the square if left-clicked
             self.buttonList[self.yPos][self.xPos].bind('<Button-3>', lambda e, xPosLoc=xPosLoc, yPosLoc=yPosLoc: self.markSquare(xPosLoc, yPosLoc)) #marks the square if right-clicked
@@ -225,10 +221,10 @@ class MinesweeperMain: #Initialising class
 
     def revealSquare(self, xPos, yPos): #if a square is left-clicked...
         if not self.gameStarted: #is the game hasnt been generated yet...
-            self.generateBoard(xPos, yPos) #generate it having been clicked ath xPos, yPos
+            self.generateBoard(xPos, yPos) #generate it having been clicked at xPos, yPos
             self.gameStarted = True #the board has been generated
 
-        if xPos+yPos*self.xLength in self.revealedSquareIds or (self.buttonList[yPos][xPos]['image'] != '' and not self.failure): #if the id has already been revealed or the square if flagged...
+        if xPos+yPos*self.xLength in self.revealedSquareIds or (self.isFlaggedList[yPos][xPos] and not self.failure): #if the id has already been revealed or the square if flagged...
             return #exit the function
 
         self.squaresRevealed += 1 #increments the squares revealed
@@ -238,14 +234,15 @@ class MinesweeperMain: #Initialising class
         self.buttonList[yPos][xPos].destroy() #destroy the button
 
         if self.mapData[yPos][xPos] != 'B': #if it is NOT a bomb...
-            self.labelFrameList[yPos][xPos].grid(column=xPos, row=yPos+2) #put the label frame in its place,
+            #self.labelFrameList[yPos][xPos].grid(column=xPos, row=yPos+2) #put the label frame in its place,
 
-            self.labelList[yPos][xPos] = Label(self.labelFrameList[yPos][xPos], width=10, height=5, font=(None, 15), text=self.mapData[yPos][xPos]) #create a label for it,
-            self.labelList[yPos][xPos].pack(fill=BOTH, expand=1)
+            self.labelList[yPos][xPos] = Label(self.frame, width=62, height=51, image=self.listOfNumberImages[self.mapData[yPos][xPos]]) #create a label for it,
+            #self.labelList[yPos][xPos].pack(fill=BOTH, expand=1)
+            self.labelList[yPos][xPos].grid(row=yPos+2, column=xPos)
             self.labelList[yPos][xPos].bind('<Button-2>', lambda e, xPos=xPos, yPos=yPos: self.chordSquare(xPos, yPos)) # and if middle-clicked, it will call chordSquare
 
         if not self.failure: #if the game hasn't been failed...
-            self.root.update() #update the window (for nice looking 0 chan reactions)
+            self.root.update() #update the window (for nice looking 0 chain reactions)
         time.sleep(0.02) #sleep a bit
 
         if self.mapData[yPos][xPos] == 0 and not self.failure: #if it is a 0 and the game has not been lost...
@@ -327,10 +324,14 @@ class MinesweeperMain: #Initialising class
             gameOver = GameOverBox(self) #activate the game over dialog
 
         if self.squaresRevealed == self.xLength*self.yLength-self.numOfBombs and not self.failure: #if you have revealed all of the non-bomb squares and not failed...
+            self.failure = True
+            
             if self.vlc64bitInstalled: #if vlc is installed...
                 self.winSound.play() #play the win sound
 
-            for bombId in range(8,len(self.bombLocationsReserved)):
+            bombLocIds = self.bombLocationsReserved[8:]
+
+            for bombId in bombLocIds:
                 yLocBomb = 0
                 
                 while bombId >= self.xLength:
@@ -342,13 +343,15 @@ class MinesweeperMain: #Initialising class
                 self.revealSquare(xLocBomb, yLocBomb)
 
     def markSquare(self, xPos, yPos):
-        if self.buttonList[yPos][xPos]['image'] == '': #if the square is NOT flagged...
+        if not self.isFlaggedList[yPos][xPos]: #if the square is NOT flagged...
             self.buttonList[yPos][xPos].configure(image=self.flagImage, height=49, width=60) #flag it
             self.bombStrVar.set(int(self.bombStrVar.get())-1) #increment the bombs left
+            self.isFlaggedList[yPos][xPos] = True
 
         else:
-            self.buttonList[yPos][xPos].configure(image='', height=2, width=7) #get rid of the flag
+            self.buttonList[yPos][xPos].configure(image=self.transImage, height=49, width=60) #get rid of the flag
             self.bombStrVar.set(int(self.bombStrVar.get())+1) #increment the bombs left
+            self.isFlaggedList[yPos][xPos] = False
 
     def chordSquare(self, xPos, yPos):
         flagsSurrounding = 0
@@ -492,4 +495,4 @@ def reopenMain(caller): #restarts it outside of the class
     global minesweeper
     minesweeper = MinesweeperMain(16, 16, 17, caller)
 
-minesweeper = MinesweeperMain(6, 6, 17) #the test!
+minesweeper = MinesweeperMain(4, 4, 1) #the test!
