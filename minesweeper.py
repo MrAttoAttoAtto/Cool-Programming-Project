@@ -488,11 +488,14 @@ class GameOverBox:
         reopenMain(self) #re-call it
 
     def exit(self, master):
-        master.root.destroy()
+        try:
+            master.root.destroy()
+        except Exception:
+            pass
         self.root.destroy()
         
 def reopenMain(caller): #restarts it outside of the class
     global minesweeper
     minesweeper = MinesweeperMain(16, 16, 17, caller)
 
-minesweeper = MinesweeperMain(4, 4, 1) #the test!
+minesweeper = MinesweeperMain(4, 4, 20) #the test!
