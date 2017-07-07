@@ -1,15 +1,7 @@
 #Minesweeper!
 
-'''
-MAKE THE
-SIZES ALL IN TERMS OF
-EITHER PIXELS (ALL PICTURES)
-OR TEXT UNITS (INVISIBLE LETTERS)!
-DO THIS NEXT!!!!!
-'''
-
 from tkinter import *
-import random, time, math
+import random, time, math, vlc
 
 #Tkinter Class
 
@@ -21,13 +13,13 @@ class MinesweeperMain: #Initialising class
             pass
         
         self.gameStarted = False
-        self.gameEnd = False
+        self.failure = False
         self.vlc64bitInstalled = True
         self.squaresRevealed = 0
 
         try: #checks if the user has vlc
             import vlc
-        except ModuleNotFoundError:
+        except Exception:
             self.vlc64bitInstalled = False
 
         self.xLength = xLength #sets these variables to the object
@@ -38,7 +30,7 @@ class MinesweeperMain: #Initialising class
         
         if self.vlc64bitInstalled:
             self.explosionSound = vlc.MediaPlayer('explosion-sound.mp3') #loads the sounds
-            self.winSound = vlc.MediaPlayer('win-sound.wav')
+            self.winSound = vlc.MediaPlayer('win-sound.mp3')
 
         self.mapData = [] #creating the variable which holds the map data
 
@@ -54,6 +46,11 @@ class MinesweeperMain: #Initialising class
 
         self.root = Tk()
         self.root.title('Minesweeper') #sets up the tkinter window
+
+        listOfNumberImages = []
+
+        for x in range(9):
+            listOfNumberImages.append(PhotoImage(file='numbers\\'+str(x)+'.PNG'))
 
         self.flagImage = PhotoImage(file='flag.png')
         self.bombImage = PhotoImage(file='mine2-11.png')
@@ -231,7 +228,7 @@ class MinesweeperMain: #Initialising class
             self.generateBoard(xPos, yPos) #generate it having been clicked ath xPos, yPos
             self.gameStarted = True #the board has been generated
 
-        if xPos+yPos*self.xLength in self.revealedSquareIds or (self.buttonList[yPos][xPos]['image'] != '' and not self.gameEnd): #if the id has already been revealed or the square if flagged...
+        if xPos+yPos*self.xLength in self.revealedSquareIds or (self.buttonList[yPos][xPos]['image'] != '' and not self.failure): #if the id has already been revealed or the square if flagged...
             return #exit the function
 
         self.squaresRevealed += 1 #increments the squares revealed
@@ -247,11 +244,11 @@ class MinesweeperMain: #Initialising class
             self.labelList[yPos][xPos].pack(fill=BOTH, expand=1)
             self.labelList[yPos][xPos].bind('<Button-2>', lambda e, xPos=xPos, yPos=yPos: self.chordSquare(xPos, yPos)) # and if middle-clicked, it will call chordSquare
 
-        if not self.gameEnd: #if the game hasn't been failed...
+        if not self.failure: #if the game hasn't been failed...
             self.root.update() #update the window (for nice looking 0 chan reactions)
         time.sleep(0.02) #sleep a bit
 
-        if self.mapData[yPos][xPos] == 0 and not self.gameEnd: #if it is a 0 and the game has not been lost...
+        if self.mapData[yPos][xPos] == 0 and not self.failure: #if it is a 0 and the game has not been lost...
             if xPos > 0: #reveal all round it (nice recursiveness)
                 if yPos > 0:
                     try:
@@ -300,8 +297,8 @@ class MinesweeperMain: #Initialising class
             self.bombLabelList[self.bombsLeftToReveal-1].grid(row=yPos+2,column=xPos) #put the pic in its place
             self.bombsLeftToReveal = self.bombsLeftToReveal-1 #self-explanatory
 
-        if self.mapData[yPos][xPos] == 'B' and not self.gameEnd: #if it is the bomb which made you lose...
-            self.gameEnd = True #you failed
+        if self.mapData[yPos][xPos] == 'B' and not self.failure: #if it is the bomb which made you lose...
+            self.failure = True #you failed
             
             self.explosionLabel = Label(self.frame, image=self.explosionImage) #it becomes an explosion image
             self.explosionLabel.grid(row=yPos+2, column=xPos)# and is placed where it was
@@ -329,15 +326,11 @@ class MinesweeperMain: #Initialising class
             
             gameOver = GameOverBox(self) #activate the game over dialog
 
-        if self.squaresRevealed == self.xLength*self.yLength-self.numOfBombs and not self.gameEnd: #if you have revealed all of the non-bomb squares and not failed...
+        if self.squaresRevealed == self.xLength*self.yLength-self.numOfBombs and not self.failure: #if you have revealed all of the non-bomb squares and not failed...
             if self.vlc64bitInstalled: #if vlc is installed...
                 self.winSound.play() #play the win sound
 
-            self.gameEnd = True #the game has ended
-
-            bombLocs = self.bombLocationsReserved[8:] #get the locations of the bombs
-
-            for bombId in bombLocs: #for each of those...
+            for bombId in range(8,len(self.bombLocationsReserved)):
                 yLocBomb = 0
                 
                 while bombId >= self.xLength:
@@ -345,9 +338,8 @@ class MinesweeperMain: #Initialising class
                     yLocBomb += 1
 
                 xLocBomb = bombId
-                print(str(xLocBomb)+'!'+str(yLocBomb)) #print it's coords (debugging)
-
-                self.revealSquare(xLocBomb, yLocBomb) #reveal it
+                print(str(xLocBomb)+':'+str(yLocBomb))
+                self.revealSquare(xLocBomb, yLocBomb)
 
     def markSquare(self, xPos, yPos):
         if self.buttonList[yPos][xPos]['image'] == '': #if the square is NOT flagged...
@@ -500,4 +492,4 @@ def reopenMain(caller): #restarts it outside of the class
     global minesweeper
     minesweeper = MinesweeperMain(16, 16, 17, caller)
 
-minesweeper = MinesweeperMain(16, 16, 75) #the test!
+minesweeper = MinesweeperMain(6, 6, 17) #the test!
