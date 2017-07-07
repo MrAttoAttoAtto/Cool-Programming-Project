@@ -31,14 +31,14 @@ class MinesweeperMain: #Initialising class
         self.bombsLeftToReveal = self.numOfBombs #sets a variable that will allow for enough labels to be created
         
         if self.vlc64bitInstalled:
-            self.explosionSound = vlc.MediaPlayer('explosion-sound.mp3') #loads the sounds
+            self.explosionSound = vlc.MediaPlayer('sounds\\explosion-sound.mp3') #loads the sounds
 
             self.winChoice = winChoice
 
             if self.winChoice: #chooses the sound to load
-                self.winSound = vlc.MediaPlayer('win-sound.mp3')
+                self.winSound = vlc.MediaPlayer('sounds\\win-sound.mp3')
             else:
-                self.winSound = vlc.MediaPlayer('win-sound.wav')
+                self.winSound = vlc.MediaPlayer('sounds\\win-sound.wav')
 
         self.mapData = [] #creating the variable which holds the map data
 
@@ -54,10 +54,10 @@ class MinesweeperMain: #Initialising class
         for x in range(9):
             self.listOfNumberImages.append(PhotoImage(file='numbers\\'+str(x)+'.PNG')) #fills said list
 
-        self.transImage = PhotoImage(file='transparent.png')
-        self.flagImage = PhotoImage(file='flag.png')
-        self.bombImage = PhotoImage(file='mine2-11.png')
-        self.explosionImage = PhotoImage(file='explosion.png') #sets up the rest of the images
+        self.transImage = PhotoImage(file='pictures\\transparent.png')
+        self.flagImage = PhotoImage(file='pictures\\flag.png')
+        self.bombImage = PhotoImage(file='pictures\\mine2-11.png')
+        self.explosionImage = PhotoImage(file='pictures\\explosion.png') #sets up the rest of the images
 
         self.frame = Frame(self.root) #makes the frame widget
         self.frame.pack()
@@ -333,7 +333,6 @@ class MinesweeperMain: #Initialising class
                 while xFail >= self.xLength:
                     xFail = xFail - self.xLength
                     yFail += 1
-                print(str(xFail)+':'+str(yFail))
                 self.revealSquare(xFail, yFail)
 
             self.root.update() #update after all this is done
