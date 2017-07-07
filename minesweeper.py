@@ -54,10 +54,10 @@ class MinesweeperMain: #Initialising class
         for x in range(9):
             self.listOfNumberImages.append(PhotoImage(file='numbers'+os.sep+str(x)+'.PNG')) #fills said list
 
-        self.transImage = PhotoImage(file=os.path.join('pictures', 'transparent.png')
-        self.flagImage = PhotoImage(file=os.path.join('pictures', 'flag.png')
-        self.bombImage = PhotoImage(file=os.path.join('pictures', 'mine2-11.png')
-        self.explosionImage = PhotoImage(file=os.path.join('pictures', 'explosion.png') #sets up the rest of the images
+        self.transImage = PhotoImage(file=os.path.join('pictures', 'transparent.png'))
+        self.flagImage = PhotoImage(file=os.path.join('pictures', 'flag.png'))
+        self.bombImage = PhotoImage(file=os.path.join('pictures', 'mine2-11.png'))
+        self.explosionImage = PhotoImage(file=os.path.join('pictures', 'explosion.png')) #sets up the rest of the images
 
         self.frame = Frame(self.root) #makes the frame widget
         self.frame.pack()
