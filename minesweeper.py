@@ -1,7 +1,7 @@
 #Minesweeper!
 
 from tkinter import *
-import random, time, math, threading
+import random, time, math, threading, os.path, os
 
 #Tkinter Class
 
@@ -31,14 +31,14 @@ class MinesweeperMain: #Initialising class
         self.bombsLeftToReveal = self.numOfBombs #sets a variable that will allow for enough labels to be created
         
         if self.vlc64bitInstalled:
-            self.explosionSound = vlc.MediaPlayer('sounds\\explosion-sound.mp3') #loads the sounds
+            self.explosionSound = vlc.MediaPlayer(os.path.join('sounds', 'explosion-sound.mp3')) #loads the sounds
 
             self.winChoice = winChoice
 
             if self.winChoice: #chooses the sound to load
-                self.winSound = vlc.MediaPlayer('sounds\\win-sound.mp3')
+                self.winSound = vlc.MediaPlayer(os.path.join('sounds', 'win-sound.mp3'))
             else:
-                self.winSound = vlc.MediaPlayer('sounds\\win-sound.wav')
+                self.winSound = vlc.MediaPlayer(os.path.join('sounds', 'win-sound.wav'))
 
         self.mapData = [] #creating the variable which holds the map data
 
@@ -52,12 +52,12 @@ class MinesweeperMain: #Initialising class
         self.listOfNumberImages = [] #sets up this list for holding the images of the numbers
 
         for x in range(9):
-            self.listOfNumberImages.append(PhotoImage(file='numbers\\'+str(x)+'.PNG')) #fills said list
+            self.listOfNumberImages.append(PhotoImage(file='numbers'+os.sep+str(x)+'.PNG')) #fills said list
 
-        self.transImage = PhotoImage(file='pictures\\transparent.png')
-        self.flagImage = PhotoImage(file='pictures\\flag.png')
-        self.bombImage = PhotoImage(file='pictures\\mine2-11.png')
-        self.explosionImage = PhotoImage(file='pictures\\explosion.png') #sets up the rest of the images
+        self.transImage = PhotoImage(file=os.path.join('pictures', 'transparent.png')
+        self.flagImage = PhotoImage(file=os.path.join('pictures', 'flag.png')
+        self.bombImage = PhotoImage(file=os.path.join('pictures', 'mine2-11.png')
+        self.explosionImage = PhotoImage(file=os.path.join('pictures', 'explosion.png') #sets up the rest of the images
 
         self.frame = Frame(self.root) #makes the frame widget
         self.frame.pack()
