@@ -389,19 +389,19 @@ class MinesweeperMain: #Initialising class
                 except Exception:
                     pass
 
-                try:
-                    if self.isFlaggedList[yPos][xPos-1]:
-                        flagsSurrounding += 1
-                except Exception:
-                    pass
+            try:
+                if self.isFlaggedList[yPos][xPos-1]:
+                    flagsSurrounding += 1
+            except Exception:
+                pass
 
-                try:
-                    if self.isFlaggedList[yPos+1][xPos-1]:
-                        flagsSurrounding += 1
-                except IndexError:
-                    pass
-                except Exception:
-                    pass
+            try:
+                if self.isFlaggedList[yPos+1][xPos-1]:
+                    flagsSurrounding += 1
+            except IndexError:
+                pass
+            except Exception:
+                pass
 
         if yPos > 0:
             try:
