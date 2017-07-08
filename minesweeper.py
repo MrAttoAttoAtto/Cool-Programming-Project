@@ -86,12 +86,12 @@ class MinesweeperMain: #Initialising class
         self.timeStrVar = StringVar()
         self.timeStrVar.set('00:00')
         self.timeClock = Label(self.frame, textvariable=self.timeStrVar)
-        self.timeClock.grid(row=1, column=self.timeXPos)
+        self.timeClock.grid(row=1, column=timeXPos)
 
         self.bombStrVar = StringVar()
         self.bombStrVar.set(str(self.numOfBombs))
         self.bombsLeftLabel = Label(self.frame, textvariable=self.bombStrVar)
-        self.bombsLeftLabel.grid(row=1, column=self.bombCountXPos)
+        self.bombsLeftLabel.grid(row=1, column=bombCountXPos)
 
         self.buttonList = [] #lists to hold data for buttons/labels
         self.buttonStringVarList = []
