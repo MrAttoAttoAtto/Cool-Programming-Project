@@ -9,9 +9,9 @@ class MinesweeperMain: #Initialising class
     def __init__(self, xLength, yLength, percentOfBombs, caller=None, winChoice=True):
         try: #kills the 'play again' host (if it exists)
             caller.root.destroy()
-        except Exception:
+        except TclError:
             pass
-        
+
         self.gameStarted = False #makes the necessary variables
         self.gameOver = False
         self.vlc64bitInstalled = True
@@ -19,7 +19,7 @@ class MinesweeperMain: #Initialising class
 
         try: #checks if the user has vlc
             import vlc
-        except Exception:
+        except OSError:
             self.vlc64bitInstalled = False
 
         self.xLength = xLength #sets these variables to the object
@@ -29,7 +29,7 @@ class MinesweeperMain: #Initialising class
 
         self.numOfBombs = math.floor(self.percentOfBombs/100*self.xLength*self.yLength) #setting the number of bombs
         self.bombsLeftToReveal = self.numOfBombs #sets a variable that will allow for enough labels to be created
-        
+
         if self.vlc64bitInstalled:
             self.explosionSound = vlc.MediaPlayer(os.path.join('sounds', 'explosion-sound.mp3')) #loads the sounds
 
@@ -66,36 +66,36 @@ class MinesweeperMain: #Initialising class
 
         for i in range(self.numOfBombs): #adds all the necessary bomb picture labels
             self.bombLabelList.append(Label(self.frame, image=self.bombImage, width=62, height=51)) #adds the right amount of bomb pictures to the list
-            
+
         if self.xLength % 2 == 0:
-            self.timeXPos = int(self.xLength/2-1) #sets the positions so they are in the middle
-            self.bombCountXPos = self.timeXPos + 1
+            timeXPos = int(self.xLength/2-1) #sets the positions so they are in the middle
+            bombCountXPos = timeXPos + 1
         else:
-            self.timeXPos = int(self.xLength/2-1.5)
-            self.bombCountXPos = self.timeXPos + 2
+            timeXPos = int(self.xLength/2-1.5)
+            bombCountXPos = timeXPos + 2
 
         self.timeSecs = 0 #sets these time variables
         self.timeMins = 0
 
         self.timeLabel = Label(self.frame, text='Time') #puts the time and bomb count onto the tkinter window
-        self.timeLabel.grid(row=0,column=self.timeXPos)
+        self.timeLabel.grid(row=0, column=timeXPos)
 
         self.bombLabel = Label(self.frame, text='Bombs')
-        self.bombLabel.grid(row=0,column=self.bombCountXPos)
+        self.bombLabel.grid(row=0, column=bombCountXPos)
 
         self.timeStrVar = StringVar()
         self.timeStrVar.set('00:00')
-        self.timeClock = Label(self.frame, textvariable =self.timeStrVar)
-        self.timeClock.grid(row=1,column=self.timeXPos)
+        self.timeClock = Label(self.frame, textvariable=self.timeStrVar)
+        self.timeClock.grid(row=1, column=self.timeXPos)
 
         self.bombStrVar = StringVar()
         self.bombStrVar.set(str(self.numOfBombs))
         self.bombsLeftLabel = Label(self.frame, textvariable=self.bombStrVar)
-        self.bombsLeftLabel.grid(row=1,column=self.bombCountXPos)
+        self.bombsLeftLabel.grid(row=1, column=self.bombCountXPos)
 
         self.buttonList = [] #lists to hold data for buttons/labels
         self.buttonStringVarList = []
-        self.labelList=[]
+        self.labelList = []
         self.isFlaggedList = []
 
         self.mapData = [] #creating the variable which holds the map data
@@ -106,7 +106,7 @@ class MinesweeperMain: #Initialising class
             self.labelList.append([])
             self.isFlaggedList.append([])
             self.mapData.append([])
-            
+
             for p in range(self.xLength):
                 self.buttonStringVarList[l].append(StringVar())
                 self.buttonList[l].append('')
@@ -117,7 +117,8 @@ class MinesweeperMain: #Initialising class
         self.xPos = 0 #sets the working positions of the button creation
         self.yPos = 0
 
-        for pos in range(0, self.xLength*self.yLength):  #creates all of the buttons required        
+
+        for pos in range(0, self.xLength*self.yLength): #creates all of the buttons required
             if self.xPos == self.xLength:
                 self.yPos += 1
                 self.xPos = 0
@@ -140,12 +141,12 @@ class MinesweeperMain: #Initialising class
         try:
             if self.gameOver or self.root.winfo_exists() == 0: #if the game is over or the window has been closed, exit this loop of the timer
                 return
-        except RuntimeError:
+        except RuntimeError: #if the window has been forcefully ended
             return
-        
-        self.timerThread = threading.Timer(1.0, self.timerCode) #when started, in one second, run this program again
-        self.timerThread.daemon = True #makes it nicer to end
-        self.timerThread.start() #starts the 1 second timer
+
+        timerThread = threading.Timer(1.0, self.timerCode) #when started, in one second, run this program again
+        timerThread.daemon = True #makes it nicer to end
+        timerThread.start() #starts the 1 second timer
 
         self.timeSecs += 1 #increments the seconds
 
@@ -155,7 +156,7 @@ class MinesweeperMain: #Initialising class
 
         if self.timeSecs < 10: #if either is lower than 10, make sure it has a 0 in front of the number
             self.timeSecs = '0'+str(self.timeSecs)
-        
+
         if self.timeMins < 10:
             self.timeMins = '0'+str(self.timeMins)
 
@@ -261,7 +262,7 @@ class MinesweeperMain: #Initialising class
 
         self.buttonList[yPos][xPos].destroy() #destroy the button
 
-        if self.mapData[yPos][xPos] != 'B': #if it is NOT a bomb...  
+        if self.mapData[yPos][xPos] != 'B': #if it is NOT a bomb...
             self.labelList[yPos][xPos] = Label(self.frame, width=62, height=51, image=self.listOfNumberImages[self.mapData[yPos][xPos]]) #create a label for it,
             self.labelList[yPos][xPos].grid(row=yPos+2, column=xPos)
             self.labelList[yPos][xPos].bind('<Button-2>', lambda e, xPos=xPos, yPos=yPos: self.chordSquare(xPos, yPos)) # and if middle-clicked, it will call chordSquare
@@ -279,51 +280,51 @@ class MinesweeperMain: #Initialising class
                         pass
 
                 try:
-                    self.revealSquare(xPos-1,yPos)
+                    self.revealSquare(xPos-1, yPos)
                 except Exception:
                     pass
 
                 try:
-                    self.revealSquare(xPos-1,yPos+1)
+                    self.revealSquare(xPos-1, yPos+1)
                 except Exception:
                     pass
 
             if yPos > 0:
                 try:
-                    self.revealSquare(xPos,yPos-1)
+                    self.revealSquare(xPos, yPos-1)
                 except Exception:
                     pass
 
             try:
-                self.revealSquare(xPos,yPos+1)
+                self.revealSquare(xPos, yPos+1)
             except Exception:
                 pass
-            
+
             if yPos > 0:
                 try:
-                    self.revealSquare(xPos+1,yPos-1)
+                    self.revealSquare(xPos+1, yPos-1)
                 except Exception:
                     pass
 
             try:
-                self.revealSquare(xPos+1,yPos)
+                self.revealSquare(xPos+1, yPos)
             except Exception:
                 pass
 
             try:
-                self.revealSquare(xPos+1,yPos+1)
+                self.revealSquare(xPos+1, yPos+1)
             except Exception:
                 pass
 
         if self.mapData[yPos][xPos] == 'B': #if it's a bomb...
-            self.bombLabelList[self.bombsLeftToReveal-1].grid(row=yPos+2,column=xPos) #put the pic in its place
+            self.bombLabelList[self.bombsLeftToReveal-1].grid(row=yPos+2, column=xPos) #put the pic in its place
             self.bombsLeftToReveal = self.bombsLeftToReveal-1 #self-explanatory
 
         if self.mapData[yPos][xPos] == 'B' and not self.gameOver: #if it is the bomb which made you lose...
             self.gameOver = True #you failed
 
             print('Working...')
-            
+
             self.explosionLabel = Label(self.frame, width=62, height=51, image=self.explosionImage) #it becomes an explosion image
             self.explosionLabel.grid(row=yPos+2, column=xPos)# and is placed where it was
 
@@ -341,14 +342,14 @@ class MinesweeperMain: #Initialising class
             self.root.update() #update after all this is done
 
             print('Done!')
-            
+
             gameOver = GameOverBox(self, 'loss') #activate the game over dialog
 
         if self.squaresRevealed == self.xLength*self.yLength-self.numOfBombs and not self.gameOver: #if you have revealed all of the non-bomb squares and not failed...
             self.gameOver = True
 
             print('Working...')
-            
+
             if self.vlc64bitInstalled: #if vlc is installed...
                 self.winSound.play() #play the win sound
 
@@ -356,13 +357,13 @@ class MinesweeperMain: #Initialising class
 
             for bombId in bombLocIds: #iterate through them
                 yLocBomb = 0
-                
+
                 while bombId >= self.xLength: #turn the ids into coordinates
                     bombId = bombId - self.xLength
                     yLocBomb += 1
 
                 xLocBomb = bombId
-                
+
                 self.revealSquare(xLocBomb, yLocBomb) #reveal those coords
 
             print('Done!')
@@ -383,7 +384,7 @@ class MinesweeperMain: #Initialising class
     def chordSquare(self, xPos, yPos): #chording
         flagsSurrounding = 0
         flagsNeeded = self.mapData[yPos][xPos]
-        
+
         if xPos > 0: #all of this next part finds how many flags surround a square (and makes sure that it does not wrap around or throw an error)
             if yPos > 0:
                 try:
@@ -455,42 +456,42 @@ class MinesweeperMain: #Initialising class
                         pass
 
                 try:
-                    self.revealSquare(xPos-1,yPos)
+                    self.revealSquare(xPos-1, yPos)
                 except Exception:
                     pass
 
                 try:
-                    self.revealSquare(xPos-1,yPos+1)
+                    self.revealSquare(xPos-1, yPos+1)
                 except Exception:
                     pass
 
             if yPos > 0:
                 try:
-                    self.revealSquare(xPos,yPos-1)
+                    self.revealSquare(xPos, yPos-1)
                 except Exception:
                     pass
 
             try:
-                self.revealSquare(xPos,yPos+1)
+                self.revealSquare(xPos, yPos+1)
             except Exception:
                 pass
-            
+
             if yPos > 0:
                 try:
-                    self.revealSquare(xPos+1,yPos-1)
+                    self.revealSquare(xPos+1, yPos-1)
                 except Exception:
                     pass
 
             try:
-                self.revealSquare(xPos+1,yPos)
+                self.revealSquare(xPos+1, yPos)
             except Exception:
                 pass
 
             try:
-                self.revealSquare(xPos+1,yPos+1)
+                self.revealSquare(xPos+1, yPos+1)
             except Exception:
                 pass
-            
+
 
 class GameOverBox: #end of game dialog
     def __init__(self, master, state):
@@ -502,7 +503,7 @@ class GameOverBox: #end of game dialog
             self.title = 'Congratulations' #set these variables
             self.message = 'You Won, Well Done! It took you '+master.timeStrVar.get()+'!'
             self.color = 'green'
-        
+
         self.root = Tk()
         self.root.title(self.title) #create the window
 
@@ -511,7 +512,7 @@ class GameOverBox: #end of game dialog
 
         self.label = Label(self.frame, text=self.message, fg=self.color) #create the label
         self.label.grid(row=0, column=1)
-        
+
         self.playAgainButton = Button(self.frame, text='Play Again', fg='green', command=lambda: self.restart(master)) #create the play again button
         self.playAgainButton.grid(row=0, column=0)
 
@@ -539,7 +540,7 @@ class GameOverBox: #end of game dialog
 
     def playOther(self, master):
         global start
-        
+
         try:
             master.root.destroy() #kill the MinesweeperMain window
         except Exception:
@@ -552,9 +553,9 @@ class StartBox:
             caller.root.destroy() #try killing the play again box (if it exists)
         except Exception:
             pass
-        
+
         self.choice = True #choice defaults to true
-        
+
         self.root = Tk() #creates the window
         self.root.title('Start Minesweeper')
 
@@ -594,11 +595,11 @@ class StartBox:
         self.winChoiceChoiceLabel = Label(self.frame, textvariable=self.winChoiceChoiceStrVar)
         self.winChoiceChoiceLabel.grid(row=10, column=1) #creates the StringVar which will tell you which choice you have selected
 
-        self.submitButton = Button(self.frame,text='Submit',fg='green',command=self.completeRequest)
-        self.submitButton.grid(row=12,column=0) #submit button
+        self.submitButton = Button(self.frame, text='Submit', fg='green', command=self.completeRequest)
+        self.submitButton.grid(row=12, column=0) #submit button
 
-        self.cancelButton = Button(self.frame,text='Cancel and Exit',fg='red',command=self.root.destroy)
-        self.cancelButton.grid(row=12,column=1) #exit button
+        self.cancelButton = Button(self.frame, text='Cancel and Exit', fg='red', command=self.root.destroy)
+        self.cancelButton.grid(row=12, column=1) #exit button
 
         self.root.mainloop() #Mainloop!
 
@@ -624,9 +625,9 @@ class StartBox:
             if not (self.xLen*self.yLen)-(self.xLen*self.yLen*self.bombPercent/100) >= 9: #if 9 squares cannot be reserved for the first click, dont allow them to play
                 error = ErrorBox('The percentage of bombs is too high, the game will not generate')
                 return
-            
+
             openMain(self, self.xLen, self.yLen, self.bombPercent, self.choice) #opens the opener
-            
+
         except ValueError:
             error = ErrorBox('One or more values you have entered is invalid (all have to be numbers but the percentage does not have to be an integer)') #these have to be numbers!
             pass
@@ -634,24 +635,24 @@ class StartBox:
 class ErrorBox:
     def __init__(self, error):
         self.error = error #sets the error
-        
+
         self.root = Tk() #creates the window
         self.root.title('Error')
-     
+
         self.frame = Frame(self.root) #creates the frame
         self.frame.pack()
-     
-        self.label = Label(self.frame,text=error,fg='red') #shows the error
-        self.label.grid(row=0,column=0)
-     
-        self.button = Button(self.frame,text='Ok',command=self.root.destroy) #button to kill the error box
-        self.button.grid(row=1,column=0)
+
+        self.label = Label(self.frame, text=error, fg='red') #shows the error
+        self.label.grid(row=0, column=0)
+
+        self.button = Button(self.frame, text='Ok', command=self.root.destroy) #button to kill the error box
+        self.button.grid(row=1, column=0)
 
         self.root.mainloop() #Mainloop!
-        
+
 def openMain(caller, xLength=None, yLength=None, percentOfBombs=None, winChoice=None, master=None): #restarts it outside of the class
     global minesweeper
-    
+
     if master != None: #if it has been called from the play again box...
         minesweeper = MinesweeperMain(master.xLength, master.yLength, master.percentOfBombs, caller, master.winChoice) #use the old configs
 
