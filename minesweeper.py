@@ -33,6 +33,8 @@ class MinesweeperMain: #Initialising class
         if self.vlc64bitInstalled:
             self.explosionSound = vlc.MediaPlayer(os.path.join('sounds', 'explosion-sound.mp3')) #loads the sounds
 
+            self.alertSound = vlc.MediaPlayer(os.path.join('sounds', 'alert-sound.mp3')) #alert sound
+            
             self.winChoice = winChoice
 
             if self.winChoice: #chooses the sound to load
@@ -329,6 +331,10 @@ class MinesweeperMain: #Initialising class
             self.explosionLabel.grid(row=yPos+2, column=xPos)# and is placed where it was
 
             if self.vlc64bitInstalled: #if vlc is installed...
+                self.alertSound.play() #play alert
+
+                time.sleep(0.3)
+                
                 self.explosionSound.play() #play the sound
 
             self.root.update() #update to show the explosion

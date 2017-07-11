@@ -7,3 +7,4 @@
   - explosion.png: http://www.dragoart.com/tuts/15431/1/1/how-to-draw-a-nuke,-nuclear-blast.htm
   - mine2-11.png: http://www.softpedia.com/get/Desktop-Enhancements/Icons-Related/Minesweeper-Icon-Set.shtml
   - vlc.py: http://git.videolan.org/?p=vlc/bindings/python.git;a=blob;f=generated/vlc.py;h=fab91db59df72c1d625ac6fff4025533a0679b2d;hb=HEAD
+  - alert-sound.mp3: https://www.myinstants.com/instant/metal-gear-solid-alert/
