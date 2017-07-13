@@ -11,6 +11,8 @@ class MinesweeperMain: #Initialising class
             caller.root.destroy()
         except TclError:
             pass
+        except AttributeError:
+            pass
 
         self.gameStarted = False #makes the necessary variables
         self.gameOver = False
@@ -116,36 +118,33 @@ class MinesweeperMain: #Initialising class
                 self.isFlaggedList[l].append(False)
                 self.mapData[l].append('')
 
-        self.xPos = 0 #sets the working positions of the button creation
-        self.yPos = 0
+        xPos = 0 #sets the working positions of the button creation
+        yPos = 0
 
 
         for pos in range(0, self.xLength*self.yLength): #creates all of the buttons required
-            if self.xPos == self.xLength:
-                self.yPos += 1
-                self.xPos = 0
+            if xPos == self.xLength:
+                yPos += 1
+                xPos = 0
 
-            xPosLoc = self.xPos
-            yPosLoc = self.yPos
+            self.buttonList[yPos][xPos] = Button(self.frame, height=49, width=60, textvariable=self.buttonStringVarList[yPos][xPos], image=self.transImage)
+            self.buttonList[yPos][xPos].grid(row=yPos+2, column=xPos)
+            self.buttonList[yPos][xPos].bind('<Button-1>', lambda e, xPosLoc=xPos, yPosLoc=yPos: self.revealSquare(xPosLoc, yPosLoc)) #reveals the square if left-clicked
+            self.buttonList[yPos][xPos].bind('<Button-3>', lambda e, xPosLoc=xPos, yPosLoc=yPos: self.markSquare(xPosLoc, yPosLoc)) #marks the square if right-clicked
 
-            self.buttonList[self.yPos][self.xPos] = Button(self.frame, height=49, width=60, textvariable=self.buttonStringVarList[self.yPos][self.xPos], image=self.transImage)
-            self.buttonList[self.yPos][self.xPos].grid(row=self.yPos+2, column=self.xPos)
-            self.buttonList[self.yPos][self.xPos].bind('<Button-1>', lambda e, xPosLoc=xPosLoc, yPosLoc=yPosLoc: self.revealSquare(xPosLoc, yPosLoc)) #reveals the square if left-clicked
-            self.buttonList[self.yPos][self.xPos].bind('<Button-3>', lambda e, xPosLoc=xPosLoc, yPosLoc=yPosLoc: self.markSquare(xPosLoc, yPosLoc)) #marks the square if right-clicked
-
-            self.xPos += 1
+            xPos += 1
 
         self.timerCode() #starts the timer
 
         self.root.mainloop() #mainloop!
 
     def timerCode(self):
-        try:
-            if self.gameOver or self.root.winfo_exists() == 0: #if the game is over or the window has been closed, exit this loop of the timer
-                return
-        except RuntimeError: #if the window has been forcefully ended
+        if self.gameOver: #if the game is over, exit this loop of the timer
             return
 
+        self.timeSecs = int(self.timeSecs) #turns them back into ints (just in case they were converted into strings to add 0s to the front of them)
+        self.timeMins = int(self.timeMins)
+        
         timerThread = threading.Timer(1.0, self.timerCode) #when started, in one second, run this program again
         timerThread.daemon = True #makes it nicer to end
         timerThread.start() #starts the 1 second timer
@@ -162,10 +161,10 @@ class MinesweeperMain: #Initialising class
         if self.timeMins < 10:
             self.timeMins = '0'+str(self.timeMins)
 
-        self.timeStrVar.set(str(self.timeMins)+':'+str(self.timeSecs)) #sets the visual time
-
-        self.timeSecs = int(self.timeSecs) #turns them back into ints (just in case they were converted into strings to add 0s to the front of them)
-        self.timeMins = int(self.timeMins)
+        try:
+            self.timeStrVar.set(str(self.timeMins)+':'+str(self.timeSecs)) #sets the visual time
+        except RuntimeError: #if the window has been forcefully ended
+            return
 
     def generateBoard(self, xPos, yPos): #generating the board
         self.bombLocationsReserved.append(xPos+yPos*self.xLength) #reserving the 3x3 area around the button placed
