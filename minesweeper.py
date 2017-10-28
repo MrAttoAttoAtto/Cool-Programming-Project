@@ -134,37 +134,40 @@ class MinesweeperMain: #Initialising class
 
             xPos += 1
 
-        self.timerCode() #starts the timer
+        self.timerThread = threading.Thread(target=self.timerCode, name="timer") #starts the timer
+        self.timerThread.start()
 
         self.root.mainloop() #mainloop!
 
     def timerCode(self):
-        if self.gameOver: #if the game is over, exit this loop of the timer
-            return
+        while True:
+            if self.gameOver: #if the game is over, exit this loop of the timer
+                return
 
-        self.timeSecs = int(self.timeSecs) #turns them back into ints (just in case they were converted into strings to add 0s to the front of them)
-        self.timeMins = int(self.timeMins)
-        
-        timerThread = threading.Timer(1.0, self.timerCode) #when started, in one second, run this program again
-        timerThread.daemon = True #makes it nicer to end
-        timerThread.start() #starts the 1 second timer
+            self.timeSecs = int(self.timeSecs) #turns them back into ints (just in case they were converted into strings to add 0s to the front of them)
+            self.timeMins = int(self.timeMins)
+            
+            start = time.time()
 
-        self.timeSecs += 1 #increments the seconds
+            self.timeSecs += 1 #increments the seconds
 
-        if self.timeSecs == 60: #if it is a minute...
-            self.timeSecs = 0 #change the seconds to 0 and add 1 to the mins
-            self.timeMins += 1
+            if self.timeSecs == 60: #if it is a minute...
+                self.timeSecs = 0 #change the seconds to 0 and add 1 to the mins
+                self.timeMins += 1
 
-        if self.timeSecs < 10: #if either is lower than 10, make sure it has a 0 in front of the number
-            self.timeSecs = '0'+str(self.timeSecs)
+            if self.timeSecs < 10: #if either is lower than 10, make sure it has a 0 in front of the number
+                self.timeSecs = '0'+str(self.timeSecs)
 
-        if self.timeMins < 10:
-            self.timeMins = '0'+str(self.timeMins)
+            if self.timeMins < 10:
+                self.timeMins = '0'+str(self.timeMins)
 
-        try:
-            self.timeStrVar.set(str(self.timeMins)+':'+str(self.timeSecs)) #sets the visual time
-        except RuntimeError: #if the window has been forcefully ended
-            return
+            try:
+                self.timeStrVar.set(str(self.timeMins)+':'+str(self.timeSecs)) #sets the visual time
+            except RuntimeError: #if the window has been forcefully ended
+                return
+
+            while time.time() < start+1: #waits for a sec
+                continue
 
     def generateBoard(self, xPos, yPos): #generating the board
         self.bombLocationsReserved.append(xPos+yPos*self.xLength) #reserving the 3x3 area around the button placed
